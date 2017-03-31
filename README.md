@@ -10,4 +10,12 @@ There are very simple way to access vm html console in vsphere 6.5 environment u
 Another way of displaying vm html console is using <a href="https://my.vmware.com/web/vmware/details?productId=491&downloadGroup=HTMLCONSOLESDK210" >VMware HTML Console SDK</a>. And there is official <a href="https://www.vmware.com/support/developer/html-console/html-console-21-releasenotes.html#compatibility" >release</a>. It say that installing the vCenter Certificate into the web server providing HTML console is prerequisite from <a href="http://vittoriop77.blogspot.hk/2016/03/vsphere-6-html-console.html#.WN0Z21x95Ny">this site</a>. But I found that it must import certificate to client in which displaying html console in browser.So,I provide some ways to import root CA to client according to different OS and different browser <a href="https://github.com/zhenmie365/htmlConsole/tree/master/nss">like these </a>.
 
 # vsphere 6.0
-According to <a href="">this example</a> It can access to vm html console through three way theoretically. But I found that webmks ticket way does not get it. Another two ways came out connection fail error when vm has chinese name. And I have no idea how to display fullscream. The prerequisite is add exception of vc certificate which vm belongs to. Chrome always works while firefox(linux works) and IE occasionally fail. My success example is <a href="">this</a>.
+According to <a href="https://github.com/zhenmie365/htmlConsole/blob/master/htmlSamples/basic.js">this example</a> It can access to vm html console through three way theoretically. 
+<ul>
+<li>But I found that webmks ticket way does not get it. </li>
+<li>Another two ways came out connection fail error when vm has chinese name. </li>
+<li>And I have no idea how to display fullscream. </li>
+<li>The prerequisite is add exception of vc certificate which vm belongs to. </li>
+<li>Chrome always works while firefox(linux works) and IE occasionally fail. </li>
+<li>My success example is <a href="https://github.com/zhenmie365/htmlConsole/blob/master/htmlSamples/htmlConsole6_0UseVcSsl.html">this</a>.</li>
+</ul>
