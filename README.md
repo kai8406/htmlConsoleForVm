@@ -19,3 +19,6 @@ According to <a href="https://github.com/zhenmie365/htmlConsole/blob/master/html
 <li>Chrome always works while firefox(linux works) and IE occasionally fail. </li>
 <li>My success example is <a href="https://github.com/zhenmie365/htmlConsole/blob/master/htmlSamples/htmlConsole6_0UseVcSsl.html">this</a>.</li>
 </ul>
+
+# vsphere 5.x
+You will get idea from <a href="http://www.virtuallyghetto.com/2014/09/html5-console-now-defaults-to-httpswss-in-vsphere-5-5-update-2.html">this</a>.
