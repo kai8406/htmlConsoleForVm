@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+ 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+	<head>
+		<meta charset="utf-8">
+		<!-- Use the .htaccess and remove these lines to avoid edge case issues.
+	   More info: h5bp.com/b/378 -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>htmlConsole</title>
+		<!-- Mobile viewport optimized: j.mp/bplateviewport -->
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<!-- CSS: implied media=all -->
+		<!-- CSS concatenated and minified via ant build script-->
+		<!-- <link rel="stylesheet" href="css/style.css"> -->
+		<link rel="stylesheet" href="css/wmks-all.css">
+		<link href="css/jquery-ui-1.8.16.custom.css" rel="stylesheet" type="text/css" />
+		<!-- project css -->
+		<!-- end CSS-->
+		<script type="text/javascript">
+			if (!window.console) {
+				console = {log: function() {} };
+			}
+		</script>
+	</head>
+
+	<body class="page_fj">
+		<div>
+			<ul id="barUl" class="barTool">
+				<!-- <li id="html_fullscream">全屏</li> -->
+				<li id="html_sendCAD">发送Ctrl-Alt-Delete</li>
+				<li id="html_gotoPlugIn">切换到VMRC控制台</li>
+				<!-- <li id="html_downAndImportCert">导入证书</li> -->
+				<!-- <li onclick="openVMRCClient(this)">打开客户端</li> -->
+			</ul>
+		</div>
+		<div style="display: none;">
+			<input id="html_instId"></input>
+		</div>
+		<div id="bar" style="display: block;">
+			<div id="buttonBar" style="padding-top:5px;float:right;font-family:'微软雅黑', 'Microsoft YaHei', serif;">
+				<span id="html60_hitLable"></span>
+			</div>
+			<div id="vmName">
+				<span id="vmTitle"></span>
+			</div>
+		</div>
+
+		<div id="wmksContainer" style="top:66px;position:absolute;width:100%;height:100%;text-align:center;"></div>
+
+		<!-- Spinner markup -->
+		<div id="spinner" style="display: none;">
+			<div class="bar1"></div>
+			<div class="bar2"></div>
+			<div class="bar3"></div>
+			<div class="bar4"></div>
+			<div class="bar5"></div>
+			<div class="bar6"></div>
+			<div class="bar7"></div>
+			<div class="bar8"></div>
+			<div class="bar9"></div>
+			<div class="bar10"></div>
+			<div class="bar11"></div>
+			<div class="bar12"></div>
+		</div>
+
+		<!-- JavaScript at the bottom for fast page loading -->
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/jquery-ui-1.8.16.custom.min.js"></script>
+
+		<!-- WMKS -->
+		<script src="wmks.js"></script>
+
+<script>
+	$(function() {
+
+		var paramsInfo = getParams();
+		var url = "wss://"+ paramsInfo.hostName +
+				":9443/vsphere-client/webconsole/authd?vmId=" + paramsInfo.vmid +
+				"&vmName=" + paramsInfo.vmName +
+				"&host=" + paramsInfo.hostName + "&sessionTicket=" + paramsInfo.ticket;
+		//debugger;
+		$("#html_instId").val(paramsInfo.instId);
+		
+		function html_6_0Console_init(vcIp) {
+			var path = "<a href=\"https://" + vcIp + "/vsphere-client\" class=\"list-link\">添加例外</a>";
+			var label = "提示: 此控制台不支持全屏，点击关机或重启后，会自动关闭此窗口，请确定vm开启后再启动控制台。如果没有显示，请按" + path;
+			$("#html60_hitLable").html(label);
+		}
+
+		$(document).ready(function(){
+			_wmks = $("#wmksContainer")
+					.wmks({"useVNCHandshake" : false, "sendProperMouseWheelDeltas": true,"fitToParent":true})
+					.bind("wmksconnecting", function() {
+						console.log("The console is connecting");
+					})
+					.bind("wmksconnected", function() {
+						console.log("The console has been connected");
+					})
+					.bind("wmksdisconnected", function(evt, info) {
+						console.log("The console has been disconnected");
+						console.log(evt, info);
+					})
+					.bind("wmkserror", function(evt, errObj) {
+						console.log("Error!");
+						console.log(evt, errObj);
+					})
+					.bind("wmksiniterror", function(evt, customData) {
+						console.log(evt);
+						console.log(customData);
+					})
+						.bind("wmksresolutionchanged", function(canvas) {
+						console.log("Resolution has changed!");
+					})
+					.bind("sendKeyCodes")
+
+			_wmks.wmks("connect", url);
+		});
+		
+		var isVmOpen = true;
+		var cad = $("#html_sendCAD");
+		var keyboard = $("#html_gotoPlugIn");
+		var closeInst = $("#html_closeInst");
+		var restartInst = $("#html_restartInst");
+		
+		cad.on("click", function() {
+			var codes = [17,18,46];
+			debugger;
+			_wmks.wmks("sendKeyCodes", codes);
+		});
+		
+		keyboard.on("click", function (evt) {
+			//window.close();
+			//index_closeSubWindows();
+			// 前换到 插件式 的vmrc
+			html6_0_gotoPlugInVmrc();
+		});
+		
+		function html6_0_gotoPlugInVmrc() {
+			
+		}
+
+		// 获取传入参数 格式"?vmid=xxx&hostName=xxx&name=xxx&vmticket=xxx&thumbprint=xxx&instId=xxx"
+		function getParams() {
+			var paramsInfo = {};
+
+			var str=window.location.search;
+			var split = str.split("?vmid=");
+			var str2 = split[1];
+
+			var split1 = str2.split("&hostName=");
+			var vmid = split1[0];
+			str2 = split1[1];
+
+			split1 = str2.split("&name=");
+			var hostName = split1[0];
+			str2 = split1[1];
+			
+			html_6_0Console_init(hostName);
+
+			split1 = str2.split("&vmticket=");
+			var vmName = split1[0];
+			str2 = split1[1];
+
+			split1 = str2.split("&thumbprint=");
+			var ticket = split1[0];		// si.getSessionManager().acquireCloneTicket()
+			str2 = split1[1];
+
+			split1 = str2.split("&instId=");
+			var thumbprint = split1[0];	// vm.acquireTicket("webmks");
+			str2 = split1[1];
+			var instId = str2;
+
+
+			paramsInfo.vmid = vmid;
+			paramsInfo.hostName = hostName;
+			paramsInfo.vmName = vmName;
+			paramsInfo.ticket = ticket;
+			paramsInfo.thumbprint = thumbprint;
+			paramsInfo.instId = instId;
+
+			return paramsInfo;
+		}
+
+	});
+</script>
+
+
+	</body>
+		
+
+</html>
