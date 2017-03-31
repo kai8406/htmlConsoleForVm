@@ -1,36 +1,6 @@
 <!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Strict//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<style>
-	.page_fj {
-		background: linear-gradient(to top, #2c596e, #6da6c2 31%, #3e78a3 66%, #3380ad 91%) fixed;
-		margin: 0px;
-		padding: 0px;
-		color: white;
-	}
-	.barTool {
-		height: 30px;
-		background: rgba(0, 0, 0, .2);
-		border-radius: 3px;
-		list-style: none;
-		margin: 0px;
-		padding: 0px;;
-	}
 
-	.barTool li {
-		float: left;
-		height: 30px;
-		line-height: 30px;
-		padding: 0 30px;
-		text-align: center;
-		cursor: pointer;
-		border-right: 1px solid #eee;
-		margin-right: 2px
-	}
-
-	.layui-layer .layui-layer-btn a {
-		height:10px;
-	}
-</style>
 <html xmlns="http://www.w3.org/1999/xhtml"> 
 	<head>
 		<meta charset="utf-8">
@@ -42,9 +12,9 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<!-- CSS: implied media=all -->
 		<!-- CSS concatenated and minified via ant build script-->
+		<!-- get from vcenter -->
 		<link rel="stylesheet" href="css/style.css">
 		<link rel="stylesheet" href="css/wmks-all.css">
-		<link rel="stylesheet" type="text/css" href="../../../asset/components/css/global.css"/>
 		<!-- project css -->
 		<!-- end CSS-->
 		<script type="text/javascript">
@@ -57,8 +27,6 @@
 	<body class="page_fj">
 		<div>
 			<ul id="barUl" class="barTool">
-				<li id="html_closeInst">关机</li>
-				<li id="html_restartInst">重启</li>
 				<li id="html_fullscream">全屏</li>
 				<li id="html_sendCAD">发送Ctrl-Alt-Delete</li>
 				<li id="html_gotoPlugIn">切换到VMRC控制台</li>
@@ -99,13 +67,6 @@
 
 		<!-- WMKS -->
 		<script src="wmks.min.js"></script>
-
-		<!-- project js -->
-		<script src="../../../js/management/index.js"></script>
-		<script src="../../../asset/components/js/common.js"></script>
-		<script src="../../../js/management/sys/wmrcTools.js"></script>
-		<script src="../../../asset/layer/layer.js"></script>
-		<script src="../../../js/management/serviceInstance/serviceInstance.js"></script>
 
 <script>
 	$(function() {
@@ -185,40 +146,6 @@
 			layout();
 		});
 
-		restartInst.on("click", function() {
-			if(!isVmOpen) {
-				return;
-			}
-
-			layer.confirm('重启虚拟机会先断开控制台,您确定要重启虚拟机吗？确认虚拟机重启后请再重开控制台.', function(index) {
-				layer.close(index);
-				$.ServiceInstance.restartInstances(instId, function (data) {
-					if("suc" == data.state) {
-					} else {
-						showMessage(data.msg);
-					}
-				});
-			});
-		});
-
-		closeInst.on("click", function() {
-			if(!isVmOpen) {
-				return;
-			}
-
-			layer.confirm('关闭虚拟机会先断开控制台,您确定要关闭虚拟机吗？', function(index) {
-				layer.close(index);
-				$.ServiceInstance.closeInstances(instId, function (data) {
-					if("suc" == data.state) {
-						isVmOpen = false;
-						window.close();
-					} else {
-						showMessage(data.msg);
-					}
-				});
-			});
-		});
-
 		cad.on("click", function() {
 			wmks.sendCAD();
 		});
@@ -243,60 +170,10 @@
 		});
 		
 		function importCert() {
-			layer.confirm('正要下载证书并导入到Firefox浏览器中，您确定要导入证书吗？', function(index) {
-				layer.close(index);
-				var params = {
-						id : instId
-					};
-	
-					$.WMRCController.action.importCertificate(params,function(result) {
-						if("suc" == result.state) {
-							//layer.alert("已经成功导入证书到Firefox，请重启Firefox让证书起效。然后再开虚拟机控制台。");
-							debugger;
-							var certPath = result.datas;
-							var splitData = certPath.split("vcenter_ca");
-							var pathName = document.location.pathname;
-							var index = pathName.substr(1).indexOf("/");
-							var context = pathName.substr(0, index+1);
-							var zipName = splitData[1];
-							zipName = zipName.replace("\\", "/");
-							var link = context + "/vcenter_ca" + zipName;
-	                		window.open(link);
-						} else {
-							layer.alert(result.msg);
-						}
-					});
-			});
+			
 		}
 
 		function gotoPlugInVmrc() {
-			layer.confirm('您确定要切换到插件控制台吗？', function(index) {
-				layer.close(index);
-
-				var params = {
-					id : instId
-				};
-
-				$.WMRCController.action.searchPlugInWMRCCofig(params,function(result) {
-					if (result.state == "fail") {
-						alert(result.msg);
-						return;
-					}
-					debugger;
-					var config = result.datas;
-
-					url = "vmPlugInConsole.jsp?vmid="+config.vmid+"&hostName="+config.host
-							+"&name="+config.vmid+"&vmticket="+config.ticket+"&thumbprint="+config.thumb
-							+"&instId="+config.instId;
-
-					wmks.disconnect();
-					wmks.destroy();
-
-					url = encodeURI(url);
-					var subWindow = window.open (url, 'vmConsoleWindow', 'height=768px, width=1024px');
-					index_putSubWindows(subWindow);
-				});
-			});
 		}
 
 		//listen for window events
@@ -312,23 +189,6 @@
 				id : vmid
 			};
 
-			$.WMRCController.action.searchVmVcAndHostCofig(params,function(result) {
-				if ("suc" == result.state) {
-					var config = result.datas;
-
-					var vcVersion = config.datacenter;
-					var hostVersion = config.host;
-
-					// host 6.5的版本不支持VMRC
-					if(($.WMRCController.version.VERSION6_5_0 == vcVersion)
-							&& ($.WMRCController.version.VERSION6_5_0 == hostVersion)) {
-						keyboard.hide();
-					}
-					
-					var titleContext = config.thumb + " 控制台";
-					$("#htmlConsole_title").html(titleContext);
-				}
-			});
 
 			$.WMRCController.action.searchWMRCCofig(params,function(result) {
 				if (result.state == "fail") {
